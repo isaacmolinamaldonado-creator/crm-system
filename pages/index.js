@@ -179,19 +179,20 @@ const saveLead = async (lead) => {
 // 🔥 GUARDAR CLIENTE
 const saveCliente = async (cliente) => {
   try {
-    const clienteData = {
-      nombre: cliente.nombre,
-      telefono: cliente.telefono,
-      email: cliente.email,
-      capital_inicial: cliente.capitalInicial,
-      capital_actual: cliente.capitalActual,
-      perfil: cliente.perfil,
-      fecha_alta: cliente.fechaAlta,
-      comision_entrada: cliente.comisionEntrada,
-      estado: cliente.estado,
-      clientes_referidos: cliente.clientesReferidos,
-      dinero_referidos: cliente.dineroReferidos
-    };
+const clienteData = {
+  nombre: cliente.nombre,
+  telefono: cliente.telefono,
+  email: cliente.email,
+  capital_inicial: parseFloat(cliente.capitalInicial) || 0,
+  capital_actual: parseFloat(cliente.capitalActual) || 0,
+  perfil: cliente.perfil,
+  fecha_alta: cliente.fechaAlta,
+  comision_entrada: parseFloat(cliente.comisionEntrada) || 0,
+  estado: cliente.estado,
+  clientes_referidos: parseInt(cliente.clientesReferidos) || 0,
+  dinero_referidos: parseFloat(cliente.dineroReferidos) || 0,
+  deuda: parseFloat(cliente.deuda) || 0
+};
 
     if (cliente.id && typeof cliente.id === 'string') {
       const { error } = await supabase
@@ -435,14 +436,15 @@ const cerrarLead = async (lead) => {
         {/* DASHBOARD */}
         {activeTab === 'dashboard' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '16px' }}>
               {[
-                { label: 'Total Leads', value: totalLeads, icon: '👤', color: '#3b82f6' },
+{ label: 'Total Leads', value: totalLeads, icon: '👤', color: '#3b82f6' },
                 { label: 'Calientes', value: leadsCalientes, icon: '🔥', color: '#ef4444' },
                 { label: 'Conversión', value: `${tasaConversion}%`, icon: '📈', color: '#10b981' },
                 { label: 'Pipeline €', value: `${capitalPipeline.toLocaleString()}€`, icon: '💰', color: '#f59e0b' },
                 { label: 'Clientes', value: clientes.length, icon: '✅', color: '#8b5cf6' },
                 { label: 'Comisiones', value: `$${totalComisiones}`, icon: '💎', color: '#ec4899' },
+                { label: '💰 Deudas', value: `${clientes.reduce((sum, c) => sum + (c.deuda || 0), 0).toLocaleString()}€`, icon: '💸', color: '#ef4444' },
               ].map((kpi, idx) => (
                 <div key={idx} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '20px', position: 'relative', overflow: 'hidden' }}>
                   <div style={{ position: 'absolute', top: '-20px', right: '-20px', fontSize: '80px', opacity: 0.05 }}>{kpi.icon}</div>
@@ -712,6 +714,7 @@ const cerrarLead = async (lead) => {
                     <th style={{ padding: '16px', textAlign: 'right', fontSize: '12px', color: '#64748b' }}>COMISIÓN</th>
                     <th style={{ padding: '16px', textAlign: 'right', fontSize: '12px', color: '#64748b' }}>REFERIDOS</th>
                     <th style={{ padding: '16px', textAlign: 'right', fontSize: '12px', color: '#64748b' }}>$ REF</th>
+                    <th style={{ padding: '16px', textAlign: 'right', fontSize: '12px', color: '#64748b' }}>💰 DEUDA</th>
                     <th style={{ padding: '16px', textAlign: 'center', fontSize: '12px', color: '#64748b' }}>ACCIÓN</th>
                   </tr>
                 </thead>
@@ -730,6 +733,7 @@ const cerrarLead = async (lead) => {
 <td style={{ padding: '16px', textAlign: 'right', fontFamily: 'monospace', fontWeight: '700', color: '#f59e0b' }}>${c.comisionEntrada || 0}</td>
 <td style={{ padding: '16px', textAlign: 'right', fontWeight: '600' }}>{c.clientesReferidos || 0}</td>
 <td style={{ padding: '16px', textAlign: 'right', fontFamily: 'monospace', fontWeight: '700', color: '#ec4899' }}>{(c.dineroReferidos || 0)}€</td>
+<td style={{ padding: '16px', textAlign: 'right', fontFamily: 'monospace', fontWeight: '700', color: '#ef4444' }}>{(c.deuda || 0).toLocaleString()}€</td>
                       <td style={{ padding: '16px', textAlign: 'center' }}>
                         <button onClick={() => { setSelectedCliente(c); setShowEditCliente(true); }} style={{ padding: '6px 12px', borderRadius: '6px', border: 'none', background: 'rgba(255,255,255,0.1)', color: '#10b981', cursor: 'pointer' }}><Edit2 size={16} /></button>
                       </td>
@@ -951,8 +955,8 @@ const cerrarLead = async (lead) => {
                 email: fd.get('email'),
                 capitalActual: parseInt(fd.get('capitalActual')),
                 clientesReferidos: parseInt(fd.get('clientesReferidos')),
-                dineroReferidos: parseInt(fd.get('dineroReferidos'))
-              });
+                dineroReferidos: parseInt(fd.get('dineroReferidos')),
+                deuda: parseInt(fd.get('deuda'))              });
               setShowEditCliente(false);
               setSelectedCliente(null);
             }} style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -962,6 +966,7 @@ const cerrarLead = async (lead) => {
               <input name="capitalActual" type="number" placeholder="Capital actual (€)" defaultValue={selectedCliente.capitalActual} style={inputStyle} />
               <input name="clientesReferidos" type="number" placeholder="Clientes referidos" defaultValue={selectedCliente.clientesReferidos} style={inputStyle} />
               <input name="dineroReferidos" type="number" placeholder="Dinero pagado en referidos (€)" defaultValue={selectedCliente.dineroReferidos} style={inputStyle} />
+              <input name="deuda" type="number" placeholder="💰 Deuda (€)" defaultValue={selectedCliente.deuda || 0} style={inputStyle} />
               <button type="submit" style={{ padding: '14px', borderRadius: '8px', border: 'none', background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', cursor: 'pointer', fontWeight: '700', fontSize: '16px' }}>💾 Guardar Cambios</button>
             </form>
           </div>
