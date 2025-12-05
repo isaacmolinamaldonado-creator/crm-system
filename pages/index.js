@@ -726,10 +726,10 @@ const cerrarLead = async (lead) => {
                         <span style={{ background: perfilesRiesgo[c.perfil]?.color + '20', color: perfilesRiesgo[c.perfil]?.color, padding: '4px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: '600' }}>{c.perfil}</span>
                       </td>
                       <td style={{ padding: '16px', textAlign: 'right', fontFamily: 'monospace', fontSize: '13px' }}>{c.fechaAlta}</td>
-                      <td style={{ padding: '16px', textAlign: 'right', fontFamily: 'monospace', fontWeight: '700', color: '#10b981' }}>{c.capitalActual.toLocaleString()}€</td>
-                      <td style={{ padding: '16px', textAlign: 'right', fontFamily: 'monospace', fontWeight: '700', color: '#f59e0b' }}>${c.comisionEntrada}</td>
-                      <td style={{ padding: '16px', textAlign: 'right', fontWeight: '600' }}>{c.clientesReferidos}</td>
-                      <td style={{ padding: '16px', textAlign: 'right', fontFamily: 'monospace', fontWeight: '700', color: '#ec4899' }}>{c.dineroReferidos}€</td>
+<td style={{ padding: '16px', textAlign: 'right', fontFamily: 'monospace', fontWeight: '700', color: '#10b981' }}>{(c.capitalActual || 0).toLocaleString()}€</td>
+<td style={{ padding: '16px', textAlign: 'right', fontFamily: 'monospace', fontWeight: '700', color: '#f59e0b' }}>${c.comisionEntrada || 0}</td>
+<td style={{ padding: '16px', textAlign: 'right', fontWeight: '600' }}>{c.clientesReferidos || 0}</td>
+<td style={{ padding: '16px', textAlign: 'right', fontFamily: 'monospace', fontWeight: '700', color: '#ec4899' }}>{(c.dineroReferidos || 0)}€</td>
                       <td style={{ padding: '16px', textAlign: 'center' }}>
                         <button onClick={() => { setSelectedCliente(c); setShowEditCliente(true); }} style={{ padding: '6px 12px', borderRadius: '6px', border: 'none', background: 'rgba(255,255,255,0.1)', color: '#10b981', cursor: 'pointer' }}><Edit2 size={16} /></button>
                       </td>
