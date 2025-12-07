@@ -972,6 +972,7 @@ const cerrarLead = async (lead) => {
                 nombre: fd.get('nombre'),
                 telefono: fd.get('telefono'),
                 email: fd.get('email'),
+                estado: fd.get('estado'),
                 capitalActual: parseInt(fd.get('capitalActual')),
                 clientesReferidos: parseInt(fd.get('clientesReferidos')),
                 dineroReferidos: parseInt(fd.get('dineroReferidos')),
@@ -987,6 +988,11 @@ const cerrarLead = async (lead) => {
               <input name="capitalActual" type="number" placeholder="Capital actual (€)" defaultValue={selectedCliente.capitalActual} style={inputStyle} />
               <input name="clientesReferidos" type="number" placeholder="Clientes referidos" defaultValue={selectedCliente.clientesReferidos} style={inputStyle} />
               <input name="dineroReferidos" type="number" placeholder="Dinero pagado en referidos (€)" defaultValue={selectedCliente.dineroReferidos} style={inputStyle} />
+              <select name="estado" defaultValue={selectedCliente.estado || 'ACTIVO'} style={inputStyle}>
+                <option value="ACTIVO">✅ Activo</option>
+                <option value="INACTIVO">⏸️ Inactivo</option>
+                <option value="DESCARTADO">🗑️ Descartado</option>
+              </select>
               <input name="deuda" type="number" placeholder="💰 Deuda (€)" defaultValue={selectedCliente.deuda || 0} style={inputStyle} />
               <textarea name="notas" placeholder="📝 Notas" defaultValue={selectedCliente.notas || ''} rows="3" style={inputStyle}></textarea>
               <button type="submit" style={{ padding: '14px', borderRadius: '8px', border: 'none', background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', cursor: 'pointer', fontWeight: '700', fontSize: '16px' }}>💾 Guardar Cambios</button>
