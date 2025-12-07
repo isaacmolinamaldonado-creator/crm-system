@@ -80,6 +80,8 @@ export default function StartGrowsCRM() {
 const [leads, setLeads] = useState([]);
 const [clientes, setClientes] = useState([]);
 const [loading, setLoading] = useState(true);
+const [filtroClientes, setFiltroClientes] = useState('ACTIVO'); // ACTIVO, INACTIVO, DESCARTADO, TODOS
+const [mostrarDescartados, setMostrarDescartados] = useState(false);
 
 // 🔥 CARGAR DATOS AL INICIAR
 useEffect(() => {
@@ -141,6 +143,7 @@ const saveLead = async (lead) => {
       email: lead.email,
       estado: lead.estado,
       capital: lead.capital,
+      fecha_ingreso: lead.fechaIngreso || lead.fecha_ingreso,
       perfil: lead.perfil,
       ultimo_contacto: lead.ultimoContacto,
       proximo_seguimiento: lead.proximoSeguimiento,
@@ -191,7 +194,8 @@ const clienteData = {
   estado: cliente.estado,
   clientes_referidos: parseInt(cliente.clientesReferidos) || 0,
   dinero_referidos: parseFloat(cliente.dineroReferidos) || 0,
-  deuda: parseFloat(cliente.deuda) || 0
+  deuda: parseFloat(cliente.deuda) || 0,
+  notas: cliente.notas || '',
 };
 
     if (cliente.id && typeof cliente.id === 'string') {
@@ -331,7 +335,9 @@ const cerrarLead = async (lead) => {
       comisionEntrada: 500,
       estado: "ACTIVO",
       clientesReferidos: 0,
-      dineroReferidos: 0
+      dineroReferidos: 0,
+      deuda: 0,
+      notas: ''
     };
 
     // Guardar cliente en Supabase
@@ -681,6 +687,12 @@ const cerrarLead = async (lead) => {
         {/* CLIENTES */}
         {activeTab === 'clientes' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+              <button onClick={() => setFiltroClientes('ACTIVO')} style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: filtroClientes === 'ACTIVO' ? '#10b981' : 'rgba(255,255,255,0.05)', color: 'white', cursor: 'pointer' }}>✅ Activos</button>
+              <button onClick={() => setFiltroClientes('INACTIVO')} style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: filtroClientes === 'INACTIVO' ? '#f59e0b' : 'rgba(255,255,255,0.05)', color: 'white', cursor: 'pointer' }}>⏸️ Inactivos</button>
+              <button onClick={() => setFiltroClientes('TODOS')} style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: filtroClientes === 'TODOS' ? '#3b82f6' : 'rgba(255,255,255,0.05)', color: 'white', cursor: 'pointer' }}>📊 Todos</button>
+              <button onClick={() => setMostrarDescartados(!mostrarDescartados)} style={{ padding: '6px 10px', borderRadius: '6px', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#64748b', cursor: 'pointer', fontSize: '11px', marginLeft: 'auto' }}>{mostrarDescartados ? '👁️' : '👁️‍🗨️'}</button>
+            </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', flex: 1 }}>
                 <div style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.2), rgba(16,185,129,0.05))', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '16px', padding: '20px' }}>
@@ -719,7 +731,13 @@ const cerrarLead = async (lead) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {clientes.map(c => (
+                    {clientes
+                    .filter(c => {
+                      if (!mostrarDescartados && c.estado === 'DESCARTADO') return false;
+                      if (filtroClientes === 'TODOS') return true;
+                      return c.estado === filtroClientes;
+                    })
+                    .map(c => (
                     <tr key={c.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                       <td style={{ padding: '16px' }}>
                         <div style={{ fontWeight: '600' }}>{c.nombre}</div>
@@ -896,6 +914,7 @@ const cerrarLead = async (lead) => {
                 <option value="INTERESADO">Interesado</option>
                 <option value="CALIENTE">Caliente</option>
                 <option value="POR_CERRAR">Por Cerrar</option>
+                <option value="DESCARTADO">🗑️ Descartado</option>
               </select>
               <select name="objecion" defaultValue={selectedLead.objecion} style={inputStyle}>
                 <option value="">Sin objeción</option>
@@ -956,7 +975,9 @@ const cerrarLead = async (lead) => {
                 capitalActual: parseInt(fd.get('capitalActual')),
                 clientesReferidos: parseInt(fd.get('clientesReferidos')),
                 dineroReferidos: parseInt(fd.get('dineroReferidos')),
-                deuda: parseInt(fd.get('deuda'))              });
+                deuda: parseInt(fd.get('deuda')),
+                notas: fd.get('notas')              
+              });
               setShowEditCliente(false);
               setSelectedCliente(null);
             }} style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -967,6 +988,7 @@ const cerrarLead = async (lead) => {
               <input name="clientesReferidos" type="number" placeholder="Clientes referidos" defaultValue={selectedCliente.clientesReferidos} style={inputStyle} />
               <input name="dineroReferidos" type="number" placeholder="Dinero pagado en referidos (€)" defaultValue={selectedCliente.dineroReferidos} style={inputStyle} />
               <input name="deuda" type="number" placeholder="💰 Deuda (€)" defaultValue={selectedCliente.deuda || 0} style={inputStyle} />
+              <textarea name="notas" placeholder="📝 Notas" defaultValue={selectedCliente.notas || ''} rows="3" style={inputStyle}></textarea>
               <button type="submit" style={{ padding: '14px', borderRadius: '8px', border: 'none', background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', cursor: 'pointer', fontWeight: '700', fontSize: '16px' }}>💾 Guardar Cambios</button>
             </form>
           </div>
