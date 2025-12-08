@@ -444,8 +444,7 @@ const cerrarLead = async (lead) => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '16px' }}>
               {[
-{ label: 'Total Leads', value: totalLeads, icon: '👤', color: '#3b82f6' },
-                { label: 'Calientes', value: leadsCalientes, icon: '🔥', color: '#ef4444' },
+{ label: 'Total Leads', value: leads.filter(l => l.estado !== 'DESCARTADO').length, icon: '👤', color: '#3b82f6' },                { label: 'Calientes', value: leadsCalientes, icon: '🔥', color: '#ef4444' },
                 { label: 'Conversión', value: `${tasaConversion}%`, icon: '📈', color: '#10b981' },
                 { label: 'Pipeline €', value: `${capitalPipeline.toLocaleString()}€`, icon: '💰', color: '#f59e0b' },
                 { label: 'Clientes', value: clientes.length, icon: '✅', color: '#8b5cf6' },
@@ -691,7 +690,11 @@ const cerrarLead = async (lead) => {
               <button onClick={() => setFiltroClientes('ACTIVO')} style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: filtroClientes === 'ACTIVO' ? '#10b981' : 'rgba(255,255,255,0.05)', color: 'white', cursor: 'pointer' }}>✅ Activos</button>
               <button onClick={() => setFiltroClientes('INACTIVO')} style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: filtroClientes === 'INACTIVO' ? '#f59e0b' : 'rgba(255,255,255,0.05)', color: 'white', cursor: 'pointer' }}>⏸️ Inactivos</button>
               <button onClick={() => setFiltroClientes('TODOS')} style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: filtroClientes === 'TODOS' ? '#3b82f6' : 'rgba(255,255,255,0.05)', color: 'white', cursor: 'pointer' }}>📊 Todos</button>
-              {mostrarDescartados ? '🗑️ Ocultar descartados' : '👁️‍🗨️ Ver descartados'}            </div>
+              <button onClick={() => setMostrarDescartados(!mostrarDescartados)} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: mostrarDescartados ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.05)', color: mostrarDescartados ? '#ef4444' : '#64748b', cursor: 'pointer', marginLeft: 'auto' }}>
+                {mostrarDescartados ? '🗑️ Ocultar descartados' : '👁️‍🗨️ Ver descartados'}
+              </button> 
+              </div>
+              
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', flex: 1 }}>
                 <div style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.2), rgba(16,185,129,0.05))', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '16px', padding: '20px' }}>
