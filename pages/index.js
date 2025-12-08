@@ -189,7 +189,7 @@ const clienteData = {
   capital_inicial: parseFloat(cliente.capitalInicial) || 0,
   capital_actual: parseFloat(cliente.capitalActual) || 0,
   perfil: cliente.perfil,
-  fecha_alta: cliente.fechaAlta,
+  fecha_alta: cliente.fechaAlta || null,
   comision_entrada: parseFloat(cliente.comisionEntrada) || 0,
   estado: cliente.estado,
   clientes_referidos: parseInt(cliente.clientesReferidos) || 0,
@@ -733,15 +733,16 @@ const cerrarLead = async (lead) => {
                 <tbody>
                     {clientes
 .filter(c => {
-  if (filtroClientes === 'TODOS' && !mostrarDescartados) {
+  // Si mostrarDescartados está activo, mostrar SOLO descartados
+  if (mostrarDescartados) {
+    return c.estado === 'DESCARTADO';
+  }
+  
+  // Si no, filtrar normalmente pero SIN descartados
+  if (filtroClientes === 'TODOS') {
     return c.estado !== 'DESCARTADO';
   }
-  if (filtroClientes === 'TODOS' && mostrarDescartados) {
-    return true;
-  }
-  if (!mostrarDescartados && c.estado === 'DESCARTADO') {
-    return false;
-  }
+  
   return c.estado === filtroClientes;
 })
                     .map(c => (
@@ -1019,7 +1020,7 @@ const cerrarLead = async (lead) => {
                 clientesReferidos: parseInt(fd.get('clientesReferidos')),
                 dineroReferidos: parseInt(fd.get('dineroReferidos')),
                 deuda: parseInt(fd.get('deuda')),
-                fechaAlta: fd.get('fechaAlta'),
+                fechaAlta: fd.get('fechaAlta') || null,
               };
               
               if (nuevaNota && nuevaNota.trim()) {
