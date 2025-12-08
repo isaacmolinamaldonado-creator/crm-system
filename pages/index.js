@@ -82,6 +82,7 @@ const [clientes, setClientes] = useState([]);
 const [loading, setLoading] = useState(true);
 const [filtroClientes, setFiltroClientes] = useState('ACTIVO'); // ACTIVO, INACTIVO, DESCARTADO, TODOS
 const [mostrarDescartados, setMostrarDescartados] = useState(false);
+const [mesSeleccionado, setMesSeleccionado] = useState('');
 
 // 🔥 CARGAR DATOS AL INICIAR
 useEffect(() => {
@@ -242,15 +243,22 @@ const clienteData = {
 
   const hoy = new Date().toISOString().split('T')[0];
   const ahora = new Date().toLocaleString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-  
-  const totalLeads = leads.length;
-  const leadsCalientes = leads.filter(l => l.estado === 'CALIENTE' || l.estado === 'POR_CERRAR').length;
-  const tasaConversion = clientes.length > 0 ? ((clientes.length / (clientes.length + leads.length)) * 100).toFixed(1) : 0;
-  const capitalPipeline = leads.reduce((acc, l) => acc + l.capital, 0);
-  const totalComisiones = clientes.length * 500;
-  const totalReferidos = clientes.reduce((acc, c) => acc + c.dineroReferidos, 0);
-  const capitalGestionado = clientes.reduce((acc, c) => acc + c.capitalActual, 0);
-  const seguimientosHoy = leads.filter(l => l.proximoSeguimiento <= hoy);
+  // Filtrar por mes si está seleccionado
+const leadsFiltrados = mesSeleccionado 
+  ? leads.filter(l => l.fechaIngreso?.startsWith(mesSeleccionado) || l.fechaEntrada?.startsWith(mesSeleccionado))
+  : leads;
+
+const clientesFiltrados = mesSeleccionado
+  ? clientes.filter(c => c.fechaAlta?.startsWith(mesSeleccionado))
+  : clientes;
+ const totalLeads = leadsFiltrados.length;
+  const leadsCalientes = leadsFiltrados.filter(l => l.estado === 'CALIENTE' || l.estado === 'POR_CERRAR').length;
+  const tasaConversion = totalLeads > 0 ? ((clientesFiltrados.length / totalLeads) * 100).toFixed(1) : 0;
+  const capitalPipeline = leadsFiltrados.reduce((acc, l) => acc + l.capital, 0);
+  const totalComisiones = clientesFiltrados.length * 500;
+  const totalReferidos = clientesFiltrados.reduce((acc, c) => acc + c.dineroReferidos, 0);
+  const capitalGestionado = clientesFiltrados.reduce((acc, c) => acc + c.capitalActual, 0);
+  const seguimientosHoy = leadsFiltrados.filter(l => l.proximoSeguimiento <= hoy);
 
   const comisionesPorMes = [
     { mes: 'Jun', cierres: 2, comisiones: 1000 },
@@ -442,6 +450,23 @@ const cerrarLead = async (lead) => {
         {/* DASHBOARD */}
         {activeTab === 'dashboard' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* FILTRO DE MES */}
+    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+      <select 
+        value={mesSeleccionado} 
+        onChange={(e) => setMesSeleccionado(e.target.value)}
+        style={{ padding: '8px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', cursor: 'pointer' }}
+      >
+        <option value="">📊 Todos los períodos</option>
+        <option value="2024-12">Diciembre 2024</option>
+        <option value="2024-11">Noviembre 2024</option>
+        <option value="2024-10">Octubre 2024</option>
+        <option value="2024-09">Septiembre 2024</option>
+      </select>
+      {mesSeleccionado && (
+        <button onClick={() => setMesSeleccionado('')} style={{ padding: '8px 12px', borderRadius: '8px', border: 'none', background: 'rgba(239,68,68,0.2)', color: '#ef4444', cursor: 'pointer' }}>✕ Limpiar</button>
+      )}
+    </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '16px' }}>
               {[
 { label: 'Total Leads', value: leads.filter(l => l.estado !== 'DESCARTADO').length, icon: '👤', color: '#3b82f6' },                { label: 'Calientes', value: leadsCalientes, icon: '🔥', color: '#ef4444' },
