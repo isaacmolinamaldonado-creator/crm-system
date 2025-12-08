@@ -529,7 +529,10 @@ const cerrarLead = async (lead) => {
                       {estadoLeads.map(lead => (
                         <div key={lead.id} onClick={() => setSelectedLead(lead)} style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '14px', cursor: 'pointer', border: selectedLead?.id === lead.id ? `2px solid ${colors.border}` : '1px solid rgba(255,255,255,0.05)' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                            <div style={{ fontWeight: '600', fontSize: '14px' }}>{lead.nombre}</div>
+                            <div style={{ fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px' }}>
+  {lead.nombre}
+  {lead.proximoSeguimiento === hoy && <span style={{ fontSize: '10px' }}>⏰</span>}
+</div>
                             <div style={{ fontSize: '11px', background: perfilesRiesgo[lead.perfil]?.color + '30', color: perfilesRiesgo[lead.perfil]?.color, padding: '2px 8px', borderRadius: '4px' }}>{lead.perfil}</div>
                           </div>
                           <div style={{ fontSize: '16px', fontWeight: '700', color: lead.capital < 500 ? '#f59e0b' : '#10b981', marginBottom: '8px' }}>{getCapitalDisplay(lead.capital)}</div>
@@ -742,7 +745,12 @@ const cerrarLead = async (lead) => {
   if (filtroClientes === 'TODOS') return true;
   return c.estado === filtroClientes;
 })
-                    .map(c => (
+.sort((a, b) => {
+  const fechaA = new Date(a.fechaAlta || a.created_at || '2000-01-01');
+  const fechaB = new Date(b.fechaAlta || b.created_at || '2000-01-01');
+  return fechaB - fechaA; // Más recientes primero
+})
+                     .map(c => (
                     <tr key={c.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                       <td style={{ padding: '16px' }}>
                         <div style={{ fontWeight: '600' }}>{c.nombre}</div>
@@ -1005,7 +1013,7 @@ const cerrarLead = async (lead) => {
   capitalInicial: parseInt(fd.get('capital')), 
   capitalActual: parseInt(fd.get('capital')), 
   perfil: fd.get('perfil'), 
-  fechaAlta: fd.get('fechaAlta'),
+  fechaAlta: fd.get('fechaAlta') || selectedCliente.fechaAlta,
   comisionEntrada: 500, 
   estado: fd.get('estado'),
   clientesReferidos: parseInt(fd.get('clientesReferidos')) || 0,
