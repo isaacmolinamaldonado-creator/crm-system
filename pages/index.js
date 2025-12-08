@@ -732,11 +732,18 @@ const cerrarLead = async (lead) => {
                 </thead>
                 <tbody>
                     {clientes
-                    .filter(c => {
-                      if (!mostrarDescartados && c.estado === 'DESCARTADO') return false;
-                      if (filtroClientes === 'TODOS') return true;
-                      return c.estado === filtroClientes;
-                    })
+.filter(c => {
+  if (filtroClientes === 'TODOS' && !mostrarDescartados) {
+    return c.estado !== 'DESCARTADO';
+  }
+  if (filtroClientes === 'TODOS' && mostrarDescartados) {
+    return true;
+  }
+  if (!mostrarDescartados && c.estado === 'DESCARTADO') {
+    return false;
+  }
+  return c.estado === filtroClientes;
+})
                     .map(c => (
                     <tr key={c.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                       <td style={{ padding: '16px' }}>
@@ -945,22 +952,46 @@ const cerrarLead = async (lead) => {
               <h3 style={{ margin: 0 }}>➕ Nuevo Cliente</h3>
               <button onClick={() => setShowAddCliente(false)} style={{ background: 'transparent', border: 'none', color: '#64748b', fontSize: '24px', cursor: 'pointer' }}>×</button>
             </div>
-            <form onSubmit={(e) => {
+            <form onSubmit={async (e) => {
               e.preventDefault();
               const fd = new FormData(e.target);
-              const newCliente = { id: Date.now(), nombre: fd.get('nombre'), telefono: fd.get('telefono'), email: fd.get('email'), capitalInicial: parseInt(fd.get('capital')), capitalActual: parseInt(fd.get('capital')), perfil: fd.get('perfil'), fechaAlta: hoy, comisionEntrada: 500, estado: 'ACTIVO', clientesReferidos: 0, dineroReferidos: 0 };
+              const newCliente = { 
+  id: Date.now(), 
+  nombre: fd.get('nombre'), 
+  telefono: fd.get('telefono'), 
+  email: fd.get('email'), 
+  capitalInicial: parseInt(fd.get('capital')), 
+  capitalActual: parseInt(fd.get('capital')), 
+  perfil: fd.get('perfil'), 
+  fechaAlta: fd.get('fechaAlta'),
+  comisionEntrada: 500, 
+  estado: fd.get('estado'),
+  clientesReferidos: parseInt(fd.get('clientesReferidos')) || 0,
+  dineroReferidos: parseInt(fd.get('dineroReferidos')) || 0,
+  deuda: parseInt(fd.get('deuda')) || 0,
+  historial: []
+};
               setClientes([...clientes, newCliente]);
+              await saveCliente(newCliente);
               setShowAddCliente(false);
             }} style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <input name="nombre" placeholder="Nombre *" required style={inputStyle} />
               <input name="telefono" placeholder="Teléfono *" required style={inputStyle} />
               <input name="email" type="email" placeholder="Email" style={inputStyle} />
+              <input name="fechaAlta" type="date" defaultValue={hoy} style={inputStyle} />
               <input name="capital" type="number" placeholder="Capital inicial (€)" defaultValue="1000" style={inputStyle} />
               <select name="perfil" style={inputStyle}>
                 <option value="Conservador">Conservador</option>
                 <option value="Normal">Normal</option>
                 <option value="Agresivo">Agresivo</option>
               </select>
+              <select name="estado" defaultValue="ACTIVO" style={inputStyle}>
+                <option value="ACTIVO">✅ Activo</option>
+                <option value="INACTIVO">⏸️ Inactivo</option>
+                <option value="DESCARTADO">🗑️ Descartado</option>
+              </select>
+              <input name="clientesReferidos" type="number" placeholder="Clientes referidos" defaultValue="0" style={inputStyle} />
+              <input name="dineroReferidos" type="number" placeholder="Dinero referidos (€)" defaultValue="0" style={inputStyle} />
               <button type="submit" style={{ padding: '14px', borderRadius: '8px', border: 'none', background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', cursor: 'pointer', fontWeight: '700', fontSize: '16px' }}>✅ Guardar Cliente</button>
             </form>
           </div>
@@ -987,7 +1018,8 @@ const cerrarLead = async (lead) => {
                 capitalActual: parseInt(fd.get('capitalActual')),
                 clientesReferidos: parseInt(fd.get('clientesReferidos')),
                 dineroReferidos: parseInt(fd.get('dineroReferidos')),
-                deuda: parseInt(fd.get('deuda'))
+                deuda: parseInt(fd.get('deuda')),
+                fechaAlta: fd.get('fechaAlta'),
               };
               
               if (nuevaNota && nuevaNota.trim()) {
@@ -1003,6 +1035,7 @@ const cerrarLead = async (lead) => {
             }} style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>              <input name="nombre" placeholder="Nombre" defaultValue={selectedCliente.nombre} required style={inputStyle} />
               <input name="telefono" placeholder="Teléfono" defaultValue={selectedCliente.telefono} required style={inputStyle} />
               <input name="email" type="email" placeholder="Email" defaultValue={selectedCliente.email} style={inputStyle} />
+              <input name="fechaAlta" type="date" defaultValue={selectedCliente.fechaAlta} style={inputStyle} />
               <input name="capitalActual" type="number" placeholder="Capital actual (€)" defaultValue={selectedCliente.capitalActual} style={inputStyle} />
               <input name="clientesReferidos" type="number" placeholder="Clientes referidos" defaultValue={selectedCliente.clientesReferidos} style={inputStyle} />
               <input name="dineroReferidos" type="number" placeholder="Dinero pagado en referidos (€)" defaultValue={selectedCliente.dineroReferidos} style={inputStyle} />
