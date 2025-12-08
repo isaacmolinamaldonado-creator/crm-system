@@ -691,8 +691,7 @@ const cerrarLead = async (lead) => {
               <button onClick={() => setFiltroClientes('ACTIVO')} style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: filtroClientes === 'ACTIVO' ? '#10b981' : 'rgba(255,255,255,0.05)', color: 'white', cursor: 'pointer' }}>✅ Activos</button>
               <button onClick={() => setFiltroClientes('INACTIVO')} style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: filtroClientes === 'INACTIVO' ? '#f59e0b' : 'rgba(255,255,255,0.05)', color: 'white', cursor: 'pointer' }}>⏸️ Inactivos</button>
               <button onClick={() => setFiltroClientes('TODOS')} style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: filtroClientes === 'TODOS' ? '#3b82f6' : 'rgba(255,255,255,0.05)', color: 'white', cursor: 'pointer' }}>📊 Todos</button>
-              <button onClick={() => setMostrarDescartados(!mostrarDescartados)} style={{ padding: '6px 10px', borderRadius: '6px', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#64748b', cursor: 'pointer', fontSize: '11px', marginLeft: 'auto' }}>{mostrarDescartados ? '👁️' : '👁️‍🗨️'}</button>
-            </div>
+              {mostrarDescartados ? '🗑️ Ocultar descartados' : '👁️‍🗨️ Ver descartados'}            </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', flex: 1 }}>
                 <div style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.2), rgba(16,185,129,0.05))', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '16px', padding: '20px' }}>
@@ -733,20 +732,12 @@ const cerrarLead = async (lead) => {
                 <tbody>
                     {clientes
 .filter(c => {
-  // Filtrar por estado seleccionado
-  let pasaFiltroEstado = false;
-  if (filtroClientes === 'TODOS') {
-    pasaFiltroEstado = true;
-  } else {
-    pasaFiltroEstado = c.estado === filtroClientes;
-  }
+  // NUNCA mostrar descartados en la tabla principal
+  if (c.estado === 'DESCARTADO') return false;
   
-  // Si NO mostrar descartados, excluirlos
-  if (!mostrarDescartados && c.estado === 'DESCARTADO') {
-    return false;
-  }
-  
-  return pasaFiltroEstado;
+  // Filtrar por estado
+  if (filtroClientes === 'TODOS') return true;
+  return c.estado === filtroClientes;
 })
                     .map(c => (
                     <tr key={c.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
@@ -780,7 +771,51 @@ const cerrarLead = async (lead) => {
                   ))}
                 </tbody>
               </table>
-            </div>
+              </div>
+
+            {/* SECCIÓN LEADS DESCARTADOS */}
+            {mostrarDescartados && (
+              <div style={{ marginTop: '24px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '16px', overflow: 'hidden' }}>
+                <div style={{ padding: '16px', borderBottom: '1px solid rgba(239,68,68,0.3)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <h3 style={{ margin: 0, color: '#ef4444', fontSize: '16px', fontWeight: '600' }}>
+                    🗑️ LEADS DESCARTADOS ({leads.filter(l => l.estado === 'DESCARTADO').length})
+                  </h3>
+                </div>
+                <div style={{ padding: '16px', display: 'grid', gap: '12px' }}>
+                  {leads.filter(l => l.estado === 'DESCARTADO').map(lead => (
+                    <div key={lead.id} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: '600', fontSize: '16px' }}>{lead.nombre}</div>
+                        <div style={{ fontSize: '13px', color: '#64748b', marginTop: '4px' }}>
+                          {lead.telefono} • {lead.email || 'Sin email'} • {lead.capital}€
+                        </div>
+                        <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
+                          Descartado: {lead.fechaEntrada || 'Sin fecha'}
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button onClick={() => { setSelectedLead(lead); setShowEditLead(true); }} style={{ padding: '8px 12px', borderRadius: '6px', border: 'none', background: 'rgba(255,255,255,0.1)', color: '#10b981', cursor: 'pointer', fontSize: '14px' }}>Ver</button>
+                        <button onClick={async () => {
+                          if (window.confirm(`¿Eliminar ${lead.nombre}?`)) {
+                            try {
+                              await supabase.from('leads').delete().eq('id', lead.id);
+                              setLeads(leads.filter(l => l.id !== lead.id));
+                            } catch (error) {
+                              alert('Error al eliminar');
+                            }
+                          }
+                        }} style={{ padding: '8px 12px', borderRadius: '6px', border: 'none', background: 'rgba(239,68,68,0.2)', color: '#ef4444', cursor: 'pointer' }}>🗑️</button>
+                      </div>
+                    </div>
+                  ))}
+                  {leads.filter(l => l.estado === 'DESCARTADO').length === 0 && (
+                    <div style={{ textAlign: 'center', padding: '32px', color: '#64748b' }}>
+                      No hay leads descartados
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
