@@ -189,7 +189,7 @@ const clienteData = {
   capital_inicial: parseFloat(cliente.capitalInicial) || 0,
   capital_actual: parseFloat(cliente.capitalActual) || 0,
   perfil: cliente.perfil,
-  fecha_alta: cliente.fechaAlta || null,
+  fecha_alta: cliente.fechaAlta || new Date().toISOString().split('T')[0],
   comision_entrada: parseFloat(cliente.comisionEntrada) || 0,
   estado: cliente.estado,
   clientes_referidos: parseInt(cliente.clientesReferidos) || 0,
@@ -733,17 +733,20 @@ const cerrarLead = async (lead) => {
                 <tbody>
                     {clientes
 .filter(c => {
-  // Si mostrarDescartados está activo, mostrar SOLO descartados
-  if (mostrarDescartados) {
-    return c.estado === 'DESCARTADO';
-  }
-  
-  // Si no, filtrar normalmente pero SIN descartados
+  // Filtrar por estado seleccionado
+  let pasaFiltroEstado = false;
   if (filtroClientes === 'TODOS') {
-    return c.estado !== 'DESCARTADO';
+    pasaFiltroEstado = true;
+  } else {
+    pasaFiltroEstado = c.estado === filtroClientes;
   }
   
-  return c.estado === filtroClientes;
+  // Si NO mostrar descartados, excluirlos
+  if (!mostrarDescartados && c.estado === 'DESCARTADO') {
+    return false;
+  }
+  
+  return pasaFiltroEstado;
 })
                     .map(c => (
                     <tr key={c.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
