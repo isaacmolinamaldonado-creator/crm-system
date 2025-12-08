@@ -195,7 +195,7 @@ const clienteData = {
   clientes_referidos: parseInt(cliente.clientesReferidos) || 0,
   dinero_referidos: parseFloat(cliente.dineroReferidos) || 0,
   deuda: parseFloat(cliente.deuda) || 0,
-  notas: cliente.notas || '',
+  historial: cliente.historial || [],
 };
 
     if (cliente.id && typeof cliente.id === 'string') {
@@ -754,6 +754,16 @@ const cerrarLead = async (lead) => {
 <td style={{ padding: '16px', textAlign: 'right', fontFamily: 'monospace', fontWeight: '700', color: '#ef4444' }}>{(c.deuda || 0).toLocaleString()}€</td>
                       <td style={{ padding: '16px', textAlign: 'center' }}>
                         <button onClick={() => { setSelectedCliente(c); setShowEditCliente(true); }} style={{ padding: '6px 12px', borderRadius: '6px', border: 'none', background: 'rgba(255,255,255,0.1)', color: '#10b981', cursor: 'pointer' }}><Edit2 size={16} /></button>
+                        <button onClick={async () => {
+                          if (window.confirm(`¿Eliminar ${c.nombre}?`)) {
+                            try {
+                              await supabase.from('clientes').delete().eq('id', c.id);
+                              setClientes(clientes.filter(cl => cl.id !== c.id));
+                            } catch (error) {
+                              alert('Error al eliminar');
+                            }
+                          }
+                        }} style={{ padding: '6px 12px', borderRadius: '6px', border: 'none', background: 'rgba(255,255,255,0.1)', color: '#ef4444', cursor: 'pointer', marginLeft: '8px' }}><Trash2 size={16} /></button>
                       </td>
                     </tr>
                   ))}
@@ -965,10 +975,11 @@ const cerrarLead = async (lead) => {
               <h3 style={{ margin: 0 }}>✏️ Editar Cliente</h3>
               <button onClick={() => { setShowEditCliente(false); setSelectedCliente(null); }} style={{ background: 'transparent', border: 'none', color: '#64748b', fontSize: '24px', cursor: 'pointer' }}>×</button>
             </div>
-            <form onSubmit={(e) => {
+ <form onSubmit={async (e) => {
               e.preventDefault();
               const fd = new FormData(e.target);
-              updateCliente(selectedCliente.id, { 
+              const nuevaNota = fd.get('nuevaNota');
+              const updates = { 
                 nombre: fd.get('nombre'),
                 telefono: fd.get('telefono'),
                 email: fd.get('email'),
@@ -976,13 +987,20 @@ const cerrarLead = async (lead) => {
                 capitalActual: parseInt(fd.get('capitalActual')),
                 clientesReferidos: parseInt(fd.get('clientesReferidos')),
                 dineroReferidos: parseInt(fd.get('dineroReferidos')),
-                deuda: parseInt(fd.get('deuda')),
-                notas: fd.get('notas')              
-              });
+                deuda: parseInt(fd.get('deuda'))
+              };
+              
+              if (nuevaNota && nuevaNota.trim()) {
+                updates.historial = [
+                  ...(selectedCliente.historial || []),
+                  { fecha: new Date().toISOString(), accion: 'Nota', notas: nuevaNota }
+                ];
+              }
+              
+              await updateCliente(selectedCliente.id, updates);
               setShowEditCliente(false);
               setSelectedCliente(null);
-            }} style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <input name="nombre" placeholder="Nombre" defaultValue={selectedCliente.nombre} required style={inputStyle} />
+            }} style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>              <input name="nombre" placeholder="Nombre" defaultValue={selectedCliente.nombre} required style={inputStyle} />
               <input name="telefono" placeholder="Teléfono" defaultValue={selectedCliente.telefono} required style={inputStyle} />
               <input name="email" type="email" placeholder="Email" defaultValue={selectedCliente.email} style={inputStyle} />
               <input name="capitalActual" type="number" placeholder="Capital actual (€)" defaultValue={selectedCliente.capitalActual} style={inputStyle} />
@@ -994,7 +1012,17 @@ const cerrarLead = async (lead) => {
                 <option value="DESCARTADO">🗑️ Descartado</option>
               </select>
               <input name="deuda" type="number" placeholder="💰 Deuda (€)" defaultValue={selectedCliente.deuda || 0} style={inputStyle} />
-              <textarea name="notas" placeholder="📝 Notas" defaultValue={selectedCliente.notas || ''} rows="3" style={inputStyle}></textarea>
+              <div style={{ border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '12px', maxHeight: '200px', overflowY: 'auto' }}>
+                <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '8px' }}>📋 Historial</div>
+                {(selectedCliente.historial || []).map((h, idx) => (
+                  <div key={idx} style={{ background: 'rgba(255,255,255,0.05)', padding: '8px', borderRadius: '6px', marginBottom: '8px', fontSize: '13px' }}>
+                    <div style={{ color: '#64748b', fontSize: '11px' }}>{h.fecha}</div>
+                    <div style={{ fontWeight: '600' }}>{h.accion}</div>
+                    <div>{h.notas}</div>
+                  </div>
+                ))}
+              </div>
+              <textarea name="nuevaNota" placeholder="➕ Agregar nota" rows="2" style={inputStyle}></textarea>
               <button type="submit" style={{ padding: '14px', borderRadius: '8px', border: 'none', background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', cursor: 'pointer', fontWeight: '700', fontSize: '16px' }}>💾 Guardar Cambios</button>
             </form>
           </div>
