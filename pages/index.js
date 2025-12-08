@@ -694,7 +694,7 @@ const cerrarLead = async (lead) => {
                 {mostrarDescartados ? '🗑️ Ocultar descartados' : '👁️‍🗨️ Ver descartados'}
               </button> 
               </div>
-              
+
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', flex: 1 }}>
                 <div style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.2), rgba(16,185,129,0.05))', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '16px', padding: '20px' }}>
