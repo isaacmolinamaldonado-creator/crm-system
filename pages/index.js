@@ -529,10 +529,7 @@ const cerrarLead = async (lead) => {
                       {estadoLeads.map(lead => (
                         <div key={lead.id} onClick={() => setSelectedLead(lead)} style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '14px', cursor: 'pointer', border: selectedLead?.id === lead.id ? `2px solid ${colors.border}` : '1px solid rgba(255,255,255,0.05)' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                            <div style={{ fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px' }}>
-  {lead.nombre}
-  {lead.proximoSeguimiento === hoy && <span style={{ fontSize: '10px' }}>⏰</span>}
-</div>
+                            <div style={{ fontWeight: '600', fontSize: '14px' }}>{lead.nombre}</div>
                             <div style={{ fontSize: '11px', background: perfilesRiesgo[lead.perfil]?.color + '30', color: perfilesRiesgo[lead.perfil]?.color, padding: '2px 8px', borderRadius: '4px' }}>{lead.perfil}</div>
                           </div>
                           <div style={{ fontSize: '16px', fontWeight: '700', color: lead.capital < 500 ? '#f59e0b' : '#10b981', marginBottom: '8px' }}>{getCapitalDisplay(lead.capital)}</div>
@@ -541,6 +538,7 @@ const cerrarLead = async (lead) => {
                             <span style={{ fontSize: '11px', background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: '4px' }}>💬 {lead.respuestas}</span>
                             {lead.objecion && <span style={{ fontSize: '11px', background: 'rgba(239,68,68,0.2)', padding: '2px 6px', borderRadius: '4px', color: '#f87171' }}>⚠️</span>}
                           </div>
+                          <div style={{ fontSize: '10px', color: '#64748b', marginTop: '6px' }}>📅 {lead.fechaIngreso || lead.fechaEntrada || 'Sin fecha'}</div>
                         </div>
                       ))}
                     </div>
@@ -923,6 +921,7 @@ const cerrarLead = async (lead) => {
                 notas: notaInicial, 
                 fuente: fd.get('fuente'), 
                 fechaEntrada: hoy, 
+                fechaIngreso: hoy,
                 historial: notaInicial ? [{ fecha: ahora, tipo: 'Nota inicial', mensaje: notaInicial, resultado: 'Info' }] : []
               };
               setLeads([...leads, newLead]);
@@ -932,6 +931,7 @@ const cerrarLead = async (lead) => {
               <input name="nombre" placeholder="Nombre *" required style={inputStyle} />
               <input name="telefono" placeholder="Teléfono *" required style={inputStyle} />
               <input name="email" type="email" placeholder="Email" style={inputStyle} />
+              <input name="fechaIngreso" type="date" defaultValue={selectedLead.fechaIngreso || selectedLead.fechaEntrada} style={inputStyle} />
               <input name="capital" type="number" placeholder="Capital (€)" defaultValue="700" style={inputStyle} />
               <select name="perfil" style={inputStyle}>
                 <option value="Conservador">Conservador</option>
@@ -963,7 +963,7 @@ const cerrarLead = async (lead) => {
             <form onSubmit={(e) => {
               e.preventDefault();
               const fd = new FormData(e.target);
-              updateLead(selectedLead.id, { nombre: fd.get('nombre'), telefono: fd.get('telefono'), email: fd.get('email'), capital: parseInt(fd.get('capital')), perfil: fd.get('perfil'), estado: fd.get('estado'), objecion: fd.get('objecion'), notas: fd.get('notas') });
+              updateLead(selectedLead.id, { nombre: fd.get('nombre'), telefono: fd.get('telefono'), email: fd.get('email'), fechaIngreso: fd.get('fechaIngreso'), capital: parseInt(fd.get('capital')), perfil: fd.get('perfil'), estado: fd.get('estado'), objecion: fd.get('objecion'), notas: fd.get('notas') });
               setShowEditLead(false);
             }} style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <input name="nombre" placeholder="Nombre" defaultValue={selectedLead.nombre} required style={inputStyle} />
@@ -1009,11 +1009,11 @@ const cerrarLead = async (lead) => {
   id: Date.now(), 
   nombre: fd.get('nombre'), 
   telefono: fd.get('telefono'), 
-  email: fd.get('email'), 
+  email: fd.get('email'),
+  fechaAlta: fd.get('fechaAlta') || selectedCliente.fechaAlta, 
   capitalInicial: parseInt(fd.get('capital')), 
   capitalActual: parseInt(fd.get('capital')), 
   perfil: fd.get('perfil'), 
-  fechaAlta: fd.get('fechaAlta') || selectedCliente.fechaAlta,
   comisionEntrada: 500, 
   estado: fd.get('estado'),
   clientesReferidos: parseInt(fd.get('clientesReferidos')) || 0,
@@ -1064,6 +1064,7 @@ const cerrarLead = async (lead) => {
                 nombre: fd.get('nombre'),
                 telefono: fd.get('telefono'),
                 email: fd.get('email'),
+                fechaAlta: fd.get('fechaAlta'),
                 estado: fd.get('estado'),
                 capitalActual: parseInt(fd.get('capitalActual')),
                 clientesReferidos: parseInt(fd.get('clientesReferidos')),
