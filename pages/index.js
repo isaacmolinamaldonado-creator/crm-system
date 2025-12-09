@@ -244,6 +244,9 @@ const clienteData = {
   const hoy = new Date().toISOString().split('T')[0];
   const ahora = new Date().toLocaleString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   // Filtrar por mes si está seleccionado
+  // Filtrar leads nulos
+const leadsValidos = leads.filter(l => l !== null && l !== undefined);
+
 const leadsFiltrados = mesSeleccionado 
   ? leads.filter(l => {
       const fecha = l?.fechaIngreso || l?.fechaEntrada || '';
@@ -272,13 +275,13 @@ const clientesFiltrados = mesSeleccionado
     { mes: 'Nov', cierres: 5, comisiones: 2500 },
   ];
 
-  const pipelineData = [
-    { name: 'Fríos', value: leads.filter(l => l.estado === 'FRIO').length, color: '#3b82f6' },
-    { name: 'Tibios', value: leads.filter(l => l.estado === 'TIBIO').length, color: '#f59e0b' },
-    { name: 'Interesados', value: leads.filter(l => l.estado === 'INTERESADO').length, color: '#10b981' },
-    { name: 'Calientes', value: leads.filter(l => l.estado === 'CALIENTE').length, color: '#ef4444' },
-    { name: 'Por cerrar', value: leads.filter(l => l.estado === 'POR_CERRAR').length, color: '#8b5cf6' },
-  ];
+const pipelineData = [
+  { name: 'Fríos', value: leadsValidos.filter(l => l.estado === 'FRIO').length, color: '#3b82f6' },
+  { name: 'Tibios', value: leadsValidos.filter(l => l.estado === 'TIBIO').length, color: '#f59e0b' },
+  { name: 'Interesados', value: leadsValidos.filter(l => l.estado === 'INTERESADO').length, color: '#10b981' },
+  { name: 'Calientes', value: leadsValidos.filter(l => l.estado === 'CALIENTE').length, color: '#ef4444' },
+  { name: 'Por cerrar', value: leadsValidos.filter(l => l.estado === 'POR_CERRAR').length, color: '#8b5cf6' },
+];
 
  const updateLead = async (leadId, updates) => {
   const updatedLeads = leads.map(l => l.id === leadId ? { ...l, ...updates } : l);
