@@ -244,15 +244,15 @@ const clienteData = {
   const hoy = new Date().toISOString().split('T')[0];
   const ahora = new Date().toLocaleString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   // Filtrar por mes si está seleccionado
-  // Filtrar leads nulos
+// Filtrar leads nulos
 const leadsValidos = leads.filter(l => l !== null && l !== undefined);
 
 const leadsFiltrados = mesSeleccionado 
-  ? leads.filter(l => {
+  ? leadsValidos.filter(l => {
       const fecha = l?.fechaIngreso || l?.fechaEntrada || '';
       return fecha && fecha.startsWith(mesSeleccionado);
     })
-  : leads;
+  : leadsValidos;
 
 const clientesFiltrados = mesSeleccionado
   ? clientes.filter(c => c.fechaAlta?.startsWith(mesSeleccionado))
