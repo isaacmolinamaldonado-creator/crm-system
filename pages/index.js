@@ -148,7 +148,7 @@ const saveLead = async (lead) => {
       email: lead.email,
       estado: lead.estado,
       capital: lead.capital,
-      fecha_ingreso: lead.fechaIngreso || lead.fecha_ingreso || lead.fechaEntrada,
+      fecha_ingreso: lead.fechaIngreso || lead.fecha_ingreso || lead.fechaEntrada || new Date().toISOString().split('T')[0],
       perfil: lead.perfil,
       ultimo_contacto: lead.ultimoContacto,
       proximo_seguimiento: lead.proximoSeguimiento,
@@ -462,19 +462,25 @@ const cerrarLead = async (lead) => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             {/* FILTRO DE MES */}
     <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-     <select 
+<select 
         value={mesSeleccionado} 
         onChange={(e) => setMesSeleccionado(e.target.value)}
         style={{ padding: '8px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', cursor: 'pointer' }}
       >
         <option value="">📊 Todos los períodos</option>
-        {Array.from({ length: 24 }, (_, i) => {
-          const fecha = new Date();
-          fecha.setMonth(fecha.getMonth() - i);
-          const valor = fecha.toISOString().slice(0, 7);
-          const texto = fecha.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
-          return <option key={valor} value={valor}>{texto.charAt(0).toUpperCase() + texto.slice(1)}</option>;
-        })}
+        <option value="2024-12">Diciembre 2024</option>
+        <option value="2025-01">Enero 2025</option>
+        <option value="2025-02">Febrero 2025</option>
+        <option value="2025-03">Marzo 2025</option>
+        <option value="2025-04">Abril 2025</option>
+        <option value="2025-05">Mayo 2025</option>
+        <option value="2025-06">Junio 2025</option>
+        <option value="2025-07">Julio 2025</option>
+        <option value="2025-08">Agosto 2025</option>
+        <option value="2025-09">Septiembre 2025</option>
+        <option value="2025-10">Octubre 2025</option>
+        <option value="2025-11">Noviembre 2025</option>
+        <option value="2025-12">Diciembre 2025</option>
       </select>
       {mesSeleccionado && (
         <button onClick={() => setMesSeleccionado('')} style={{ padding: '8px 12px', borderRadius: '8px', border: 'none', background: 'rgba(239,68,68,0.2)', color: '#ef4444', cursor: 'pointer' }}>✕ Limpiar</button>
