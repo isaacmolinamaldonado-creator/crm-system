@@ -114,10 +114,19 @@ const loadAllData = async () => {
       }
       setLeads(initialLeads);
 } else {
-      // Filtrar leads null o inválidos ANTES de setear
-      const leadsValidos = leadsData.filter(l => l && l.id && l.nombre);
-      setLeads(leadsValidos);
-    }
+  const leadsValidos = leadsData
+    .filter(l => l && l.id && l.nombre)
+    .map(l => ({
+      ...l,
+      fechaIngreso: l.fecha_ingreso || l.fechaIngreso,
+      fechaEntrada: l.fecha_entrada || l.fechaEntrada,
+      ultimoContacto: l.ultimo_contacto || l.ultimoContacto,
+      proximoSeguimiento: l.proximo_seguimiento || l.proximoSeguimiento,
+      clientesReferidos: l.clientes_referidos || l.clientesReferidos,
+      dineroReferidos: l.dinero_referidos || l.dineroReferidos
+    }));
+  setLeads(leadsValidos);
+}
 
     if (!clientesData || clientesData.length === 0) {
       console.log('No hay clientes, cargando iniciales');
@@ -126,10 +135,19 @@ const loadAllData = async () => {
       }
       setClientes(initialClientes);
 } else {
-      // Filtrar clientes null o inválidos
-      const clientesValidos = clientesData.filter(c => c && c.id && c.nombre);
-      setClientes(clientesValidos);
-    }
+  const clientesValidos = clientesData
+    .filter(c => c && c.id && c.nombre)
+    .map(c => ({
+      ...c,
+      fechaAlta: c.fecha_alta || c.fechaAlta,
+      capitalInicial: c.capital_inicial || c.capitalInicial,
+      capitalActual: c.capital_actual || c.capitalActual,
+      comisionEntrada: c.comision_entrada || c.comisionEntrada,
+      clientesReferidos: c.clientes_referidos || c.clientesReferidos,
+      dineroReferidos: c.dinero_referidos || c.dineroReferidos
+    }));
+  setClientes(clientesValidos);
+}
   } catch (error) {
     console.error('Error:', error);
     setLeads(initialLeads);
@@ -577,6 +595,7 @@ const cerrarLead = async (lead) => {
                             <div style={{ fontSize: '11px', background: perfilesRiesgo[lead.perfil]?.color + '30', color: perfilesRiesgo[lead.perfil]?.color, padding: '2px 8px', borderRadius: '4px' }}>{lead.perfil}</div>
                           </div>
                           <div style={{ fontSize: '16px', fontWeight: '700', color: lead.capital < 500 ? '#f59e0b' : '#10b981', marginBottom: '8px' }}>{getCapitalDisplay(lead.capital)}</div>
+                          
                           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                             <span style={{ fontSize: '11px', background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: '4px' }}>📱 TP{lead.touchpoint}</span>
                             <span style={{ fontSize: '11px', background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: '4px' }}>💬 {lead.respuestas}</span>
@@ -598,7 +617,9 @@ const cerrarLead = async (lead) => {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <div>
                       <h3 style={{ margin: 0, fontSize: '24px' }}>{selectedLead.nombre}</h3>
-                      <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '13px' }}>{selectedLead.telefono} • {selectedLead.email}</p>
+<p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '13px' }}>
+  {selectedLead.telefono} • {selectedLead.email || 'Sin email'} {selectedLead.fechaIngreso && `• ${selectedLead.fechaIngreso}`}
+</p>
                     </div>
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <button onClick={() => setShowEditLead(true)} style={{ padding: '8px', borderRadius: '8px', border: 'none', background: 'rgba(255,255,255,0.1)', color: '#10b981', cursor: 'pointer' }}><Edit2 size={18} /></button>
