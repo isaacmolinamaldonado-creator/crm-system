@@ -245,7 +245,10 @@ const clienteData = {
   const ahora = new Date().toLocaleString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   // Filtrar por mes si está seleccionado
 const leadsFiltrados = mesSeleccionado 
-  ? leads.filter(l => l.fechaIngreso?.startsWith(mesSeleccionado) || l.fechaEntrada?.startsWith(mesSeleccionado))
+  ? leads.filter(l => {
+      const fecha = l.fechaIngreso || l.fechaEntrada || '';
+      return fecha.startsWith(mesSeleccionado);
+    })
   : leads;
 
 const clientesFiltrados = mesSeleccionado
