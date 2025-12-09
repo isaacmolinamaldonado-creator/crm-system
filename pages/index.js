@@ -280,11 +280,11 @@ const clientesFiltrados = mesSeleccionado
   ];
 
 const pipelineData = [
-  { name: 'Fríos', value: leadsValidos.filter(l => l.estado === 'FRIO').length, color: '#3b82f6' },
-  { name: 'Tibios', value: leadsValidos.filter(l => l.estado === 'TIBIO').length, color: '#f59e0b' },
-  { name: 'Interesados', value: leadsValidos.filter(l => l.estado === 'INTERESADO').length, color: '#10b981' },
-  { name: 'Calientes', value: leadsValidos.filter(l => l.estado === 'CALIENTE').length, color: '#ef4444' },
-  { name: 'Por cerrar', value: leadsValidos.filter(l => l.estado === 'POR_CERRAR').length, color: '#8b5cf6' },
+  { name: 'Fríos', value: leadsFiltrados.filter(l => l.estado === 'FRIO').length, color: '#3b82f6' },
+  { name: 'Tibios', value: leadsFiltrados.filter(l => l.estado === 'TIBIO').length, color: '#f59e0b' },
+  { name: 'Interesados', value: leadsFiltrados.filter(l => l.estado === 'INTERESADO').length, color: '#10b981' },
+  { name: 'Calientes', value: leadsFiltrados.filter(l => l.estado === 'CALIENTE').length, color: '#ef4444' },
+  { name: 'Por cerrar', value: leadsFiltrados.filter(l => l.estado === 'POR_CERRAR').length, color: '#8b5cf6' },
 ];
 
  const updateLead = async (leadId, updates) => {
