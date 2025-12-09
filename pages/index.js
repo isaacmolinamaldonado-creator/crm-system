@@ -573,11 +573,8 @@ const cerrarLead = async (lead) => {
                             <span style={{ fontSize: '11px', background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: '4px' }}>💬 {lead.respuestas}</span>
                             {lead.objecion && <span style={{ fontSize: '11px', background: 'rgba(239,68,68,0.2)', padding: '2px 6px', borderRadius: '4px', color: '#f87171' }}>⚠️</span>}
                           </div>
-{lead && (lead.fechaIngreso || lead.fechaEntrada) && (
-  <div style={{ fontSize: '10px', color: '#64748b', marginTop: '6px' }}>
+                   </div>
 
-  </div>
-)}                        </div>
                       ))}
                     </div>
                   </div>
@@ -969,8 +966,7 @@ const cerrarLead = async (lead) => {
               <input name="nombre" placeholder="Nombre *" required style={inputStyle} />
               <input name="telefono" placeholder="Teléfono *" required style={inputStyle} />
               <input name="email" type="email" placeholder="Email" style={inputStyle} />
-              <input name="fechaIngreso" type="date" defaultValue={selectedLead.fechaIngreso || selectedLead.fechaEntrada} style={inputStyle} />
-              <input name="capital" type="number" placeholder="Capital (€)" defaultValue="700" style={inputStyle} />
+<input name="fechaIngreso" type="date" defaultValue={selectedLead?.fechaIngreso || selectedLead?.fechaEntrada || ''} style={inputStyle} />              <input name="capital" type="number" placeholder="Capital (€)" defaultValue="700" style={inputStyle} />
               <select name="perfil" style={inputStyle}>
                 <option value="Conservador">Conservador</option>
                 <option value="Normal">Normal</option>
