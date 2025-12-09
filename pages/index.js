@@ -462,16 +462,19 @@ const cerrarLead = async (lead) => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             {/* FILTRO DE MES */}
     <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-      <select 
+     <select 
         value={mesSeleccionado} 
         onChange={(e) => setMesSeleccionado(e.target.value)}
         style={{ padding: '8px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', cursor: 'pointer' }}
       >
         <option value="">📊 Todos los períodos</option>
-        <option value="2024-12">Diciembre 2024</option>
-        <option value="2024-11">Noviembre 2024</option>
-        <option value="2024-10">Octubre 2024</option>
-        <option value="2024-09">Septiembre 2024</option>
+        {Array.from({ length: 24 }, (_, i) => {
+          const fecha = new Date();
+          fecha.setMonth(fecha.getMonth() - i);
+          const valor = fecha.toISOString().slice(0, 7);
+          const texto = fecha.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+          return <option key={valor} value={valor}>{texto.charAt(0).toUpperCase() + texto.slice(1)}</option>;
+        })}
       </select>
       {mesSeleccionado && (
         <button onClick={() => setMesSeleccionado('')} style={{ padding: '8px 12px', borderRadius: '8px', border: 'none', background: 'rgba(239,68,68,0.2)', color: '#ef4444', cursor: 'pointer' }}>✕ Limpiar</button>
