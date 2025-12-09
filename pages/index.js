@@ -113,8 +113,10 @@ const loadAllData = async () => {
         await saveLead(lead);
       }
       setLeads(initialLeads);
-    } else {
-      setLeads(leadsData);
+} else {
+      // Filtrar leads null o inválidos ANTES de setear
+      const leadsValidos = leadsData.filter(l => l && l.id && l.nombre);
+      setLeads(leadsValidos);
     }
 
     if (!clientesData || clientesData.length === 0) {
@@ -123,8 +125,10 @@ const loadAllData = async () => {
         await saveCliente(cliente);
       }
       setClientes(initialClientes);
-    } else {
-      setClientes(clientesData);
+} else {
+      // Filtrar clientes null o inválidos
+      const clientesValidos = clientesData.filter(c => c && c.id && c.nombre);
+      setClientes(clientesValidos);
     }
   } catch (error) {
     console.error('Error:', error);
