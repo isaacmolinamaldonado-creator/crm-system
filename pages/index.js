@@ -966,7 +966,8 @@ const cerrarLead = async (lead) => {
               <input name="nombre" placeholder="Nombre *" required style={inputStyle} />
               <input name="telefono" placeholder="Teléfono *" required style={inputStyle} />
               <input name="email" type="email" placeholder="Email" style={inputStyle} />
-<input name="fechaIngreso" type="date" defaultValue={selectedLead?.fechaIngreso || selectedLead?.fechaEntrada || ''} style={inputStyle} />              <input name="capital" type="number" placeholder="Capital (€)" defaultValue="700" style={inputStyle} />
+<input name="fechaIngreso" type="date" defaultValue={selectedLead?.fechaIngreso || selectedLead?.fechaEntrada || ''} style={inputStyle} />             
+ <input name="capital" type="number" placeholder="Capital (€)" defaultValue="700" style={inputStyle} />
               <select name="perfil" style={inputStyle}>
                 <option value="Conservador">Conservador</option>
                 <option value="Normal">Normal</option>
