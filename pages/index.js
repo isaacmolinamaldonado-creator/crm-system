@@ -148,7 +148,7 @@ const saveLead = async (lead) => {
       email: lead.email,
       estado: lead.estado,
       capital: lead.capital,
-      fecha_ingreso: lead.fechaIngreso || lead.fecha_ingreso,
+      fecha_ingreso: lead.fechaIngreso || lead.fecha_ingreso || lead.fechaEntrada,
       perfil: lead.perfil,
       ultimo_contacto: lead.ultimoContacto,
       proximo_seguimiento: lead.proximoSeguimiento,
@@ -194,7 +194,7 @@ const clienteData = {
   capital_inicial: parseFloat(cliente.capitalInicial) || 0,
   capital_actual: parseFloat(cliente.capitalActual) || 0,
   perfil: cliente.perfil,
-  fecha_alta: cliente.fechaAlta || new Date().toISOString().split('T')[0],
+  fecha_alta: cliente.fechaAlta || cliente.fecha_alta || new Date().toISOString().split('T')[0],
   comision_entrada: parseFloat(cliente.comisionEntrada) || 0,
   estado: cliente.estado,
   clientes_referidos: parseInt(cliente.clientesReferidos) || 0,
@@ -969,8 +969,8 @@ const cerrarLead = async (lead) => {
               <input name="nombre" placeholder="Nombre *" required style={inputStyle} />
               <input name="telefono" placeholder="Teléfono *" required style={inputStyle} />
               <input name="email" type="email" placeholder="Email" style={inputStyle} />
-<input name="fechaIngreso" type="date" defaultValue={selectedLead?.fechaIngreso || selectedLead?.fechaEntrada || ''} style={inputStyle} />             
- <input name="capital" type="number" placeholder="Capital (€)" defaultValue="700" style={inputStyle} />
+              <input name="fechaIngreso" type="date" placeholder="Fecha ingreso" defaultValue={selectedLead?.fechaIngreso || selectedLead?.fechaEntrada || ''} style={inputStyle} />
+             <input name="capital" type="number" placeholder="Capital (€)" defaultValue="700" style={inputStyle} />
               <select name="perfil" style={inputStyle}>
                 <option value="Conservador">Conservador</option>
                 <option value="Normal">Normal</option>
