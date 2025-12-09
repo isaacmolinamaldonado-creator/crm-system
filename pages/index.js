@@ -568,7 +568,7 @@ const cerrarLead = async (lead) => {
                           </div>
 {lead && (lead.fechaIngreso || lead.fechaEntrada) && (
   <div style={{ fontSize: '10px', color: '#64748b', marginTop: '6px' }}>
-    📅 {lead.fechaIngreso || lead.fechaEntrada}
+
   </div>
 )}                        </div>
                       ))}
