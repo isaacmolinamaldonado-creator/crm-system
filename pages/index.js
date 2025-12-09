@@ -246,7 +246,7 @@ const clienteData = {
   // Filtrar por mes si está seleccionado
 const leadsFiltrados = mesSeleccionado 
   ? leads.filter(l => {
-      const fecha = l.fechaIngreso || l.fechaEntrada || '';
+      const fecha = l?.fechaIngreso || l?.fechaEntrada || '';
       return fecha.startsWith(mesSeleccionado);
     })
   : leads;
@@ -566,8 +566,11 @@ const cerrarLead = async (lead) => {
                             <span style={{ fontSize: '11px', background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: '4px' }}>💬 {lead.respuestas}</span>
                             {lead.objecion && <span style={{ fontSize: '11px', background: 'rgba(239,68,68,0.2)', padding: '2px 6px', borderRadius: '4px', color: '#f87171' }}>⚠️</span>}
                           </div>
-                          <div style={{ fontSize: '10px', color: '#64748b', marginTop: '6px' }}>📅 {lead.fechaIngreso || lead.fechaEntrada || 'Sin fecha'}</div>
-                        </div>
+{lead && (lead.fechaIngreso || lead.fechaEntrada) && (
+  <div style={{ fontSize: '10px', color: '#64748b', marginTop: '6px' }}>
+    📅 {lead.fechaIngreso || lead.fechaEntrada}
+  </div>
+)}                        </div>
                       ))}
                     </div>
                   </div>
