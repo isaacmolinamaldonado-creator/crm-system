@@ -247,7 +247,7 @@ const clienteData = {
 const leadsFiltrados = mesSeleccionado 
   ? leads.filter(l => {
       const fecha = l?.fechaIngreso || l?.fechaEntrada || '';
-      return fecha.startsWith(mesSeleccionado);
+      return fecha && fecha.startsWith(mesSeleccionado);
     })
   : leads;
 
