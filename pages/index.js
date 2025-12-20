@@ -77,12 +77,15 @@ const inputStyle = {
 };
 
 export default function StartGrowsCRM() {
+const [isAuthenticated, setIsAuthenticated] = useState(false);
+const [passwordInput, setPasswordInput] = useState('');  
 const [leads, setLeads] = useState([]);
 const [clientes, setClientes] = useState([]);
 const [loading, setLoading] = useState(true);
 const [filtroClientes, setFiltroClientes] = useState('ACTIVO'); // ACTIVO, INACTIVO, DESCARTADO, TODOS
 const [mostrarDescartados, setMostrarDescartados] = useState(false);
 const [mesSeleccionado, setMesSeleccionado] = useState('');
+const MASTER_PASSWORD = 'StartGrows2025';
 
 // 🔥 CARGAR DATOS AL INICIAR
 useEffect(() => {
@@ -114,10 +117,19 @@ const loadAllData = async () => {
       }
       setLeads(initialLeads);
 } else {
-      // Filtrar leads null o inválidos ANTES de setear
-      const leadsValidos = leadsData.filter(l => l && l.id && l.nombre);
-      setLeads(leadsValidos);
-    }
+  const leadsValidos = leadsData
+    .filter(l => l && l.id && l.nombre)
+    .map(l => ({
+      ...l,
+      fechaIngreso: l.fecha_ingreso || l.fechaIngreso,
+      fechaEntrada: l.fecha_entrada || l.fechaEntrada,
+      ultimoContacto: l.ultimo_contacto || l.ultimoContacto,
+      proximoSeguimiento: l.proximo_seguimiento || l.proximoSeguimiento,
+      clientesReferidos: l.clientes_referidos || l.clientesReferidos,
+      dineroReferidos: l.dinero_referidos || l.dineroReferidos
+    }));
+  setLeads(leadsValidos);
+}
 
     if (!clientesData || clientesData.length === 0) {
       console.log('No hay clientes, cargando iniciales');
@@ -126,10 +138,19 @@ const loadAllData = async () => {
       }
       setClientes(initialClientes);
 } else {
-      // Filtrar clientes null o inválidos
-      const clientesValidos = clientesData.filter(c => c && c.id && c.nombre);
-      setClientes(clientesValidos);
-    }
+  const clientesValidos = clientesData
+    .filter(c => c && c.id && c.nombre)
+    .map(c => ({
+      ...c,
+      fechaAlta: c.fecha_alta || c.fechaAlta,
+      capitalInicial: c.capital_inicial || c.capitalInicial,
+      capitalActual: c.capital_actual || c.capitalActual,
+      comisionEntrada: c.comision_entrada || c.comisionEntrada,
+      clientesReferidos: c.clientes_referidos || c.clientesReferidos,
+      dineroReferidos: c.dinero_referidos || c.dineroReferidos
+    }));
+  setClientes(clientesValidos);
+}
   } catch (error) {
     console.error('Error:', error);
     setLeads(initialLeads);
@@ -413,9 +434,40 @@ const cerrarLead = async (lead) => {
     }
     return `${capital}€`;
   };
-
+if (!isAuthenticated) {
+  return (
+    <div style={{ minHeight: '100vh', background: '#0f172a', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', padding: '40px', width: '400px' }}>
+        <h1 style={{ textAlign: 'center', marginBottom: '8px' }}>🔐 StartGrows CRM</h1>
+        <p style={{ textAlign: 'center', color: '#64748b', marginBottom: '32px' }}>Ingresa la contraseña</p>
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          if (passwordInput === MASTER_PASSWORD) {
+            setIsAuthenticated(true);
+          } else {
+            alert('❌ Contraseña incorrecta');
+            setPasswordInput('');
+          }
+        }}>
+          <input
+            type="password"
+            value={passwordInput}
+            onChange={(e) => setPasswordInput(e.target.value)}
+            placeholder="Contraseña"
+            style={{ width: '100%', padding: '14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '16px', marginBottom: '16px' }}
+            autoFocus
+          />
+          <button type="submit" style={{ width: '100%', padding: '14px', borderRadius: '8px', border: 'none', background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', fontSize: '16px', fontWeight: '700', cursor: 'pointer' }}>
+            Acceder
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0a0f1a 0%, #0d1421 50%, #0a1628 100%)', color: '#e2e8f0', fontFamily: "'Inter', sans-serif" }}>
+      
       
       {/* HEADER */}
       <header style={{ background: 'linear-gradient(90deg, rgba(16,185,129,0.1), rgba(245,158,11,0.1))', borderBottom: '1px solid rgba(16,185,129,0.2)', padding: '16px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -468,19 +520,19 @@ const cerrarLead = async (lead) => {
         style={{ padding: '8px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', cursor: 'pointer' }}
       >
         <option value="">📊 Todos los períodos</option>
-        <option value="2024-12">Diciembre 2024</option>
-        <option value="2025-01">Enero 2025</option>
-        <option value="2025-02">Febrero 2025</option>
-        <option value="2025-03">Marzo 2025</option>
-        <option value="2025-04">Abril 2025</option>
-        <option value="2025-05">Mayo 2025</option>
-        <option value="2025-06">Junio 2025</option>
-        <option value="2025-07">Julio 2025</option>
-        <option value="2025-08">Agosto 2025</option>
-        <option value="2025-09">Septiembre 2025</option>
-        <option value="2025-10">Octubre 2025</option>
-        <option value="2025-11">Noviembre 2025</option>
         <option value="2025-12">Diciembre 2025</option>
+        <option value="2026-01">Enero 2026</option>
+        <option value="2026-02">Febrero 2026</option>
+        <option value="2026-03">Marzo 2026</option>
+        <option value="2026-04">Abril 2026</option>
+        <option value="2026-05">Mayo 2026</option>
+        <option value="2026-06">Junio 2026</option>
+        <option value="2026-07">Julio 2026</option>
+        <option value="2026-08">Agosto 2026</option>
+        <option value="2026-09">Septiembre 2026</option>
+        <option value="2026-10">Octubre 2026</option>
+        <option value="2026-11">Noviembre 2026</option>
+        <option value="2026-12">Diciembre 2026</option>
       </select>
       {mesSeleccionado && (
         <button onClick={() => setMesSeleccionado('')} style={{ padding: '8px 12px', borderRadius: '8px', border: 'none', background: 'rgba(239,68,68,0.2)', color: '#ef4444', cursor: 'pointer' }}>✕ Limpiar</button>
@@ -577,6 +629,7 @@ const cerrarLead = async (lead) => {
                             <div style={{ fontSize: '11px', background: perfilesRiesgo[lead.perfil]?.color + '30', color: perfilesRiesgo[lead.perfil]?.color, padding: '2px 8px', borderRadius: '4px' }}>{lead.perfil}</div>
                           </div>
                           <div style={{ fontSize: '16px', fontWeight: '700', color: lead.capital < 500 ? '#f59e0b' : '#10b981', marginBottom: '8px' }}>{getCapitalDisplay(lead.capital)}</div>
+                          
                           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                             <span style={{ fontSize: '11px', background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: '4px' }}>📱 TP{lead.touchpoint}</span>
                             <span style={{ fontSize: '11px', background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: '4px' }}>💬 {lead.respuestas}</span>
@@ -598,7 +651,9 @@ const cerrarLead = async (lead) => {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <div>
                       <h3 style={{ margin: 0, fontSize: '24px' }}>{selectedLead.nombre}</h3>
-                      <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '13px' }}>{selectedLead.telefono} • {selectedLead.email}</p>
+<p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '13px' }}>
+  {selectedLead.telefono} • {selectedLead.email || 'Sin email'} {selectedLead.fechaIngreso && `• ${selectedLead.fechaIngreso}`}
+</p>
                     </div>
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <button onClick={() => setShowEditLead(true)} style={{ padding: '8px', borderRadius: '8px', border: 'none', background: 'rgba(255,255,255,0.1)', color: '#10b981', cursor: 'pointer' }}><Edit2 size={18} /></button>
@@ -706,7 +761,7 @@ const cerrarLead = async (lead) => {
                       <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: '600', marginBottom: '10px' }}>📜 Historial ({selectedLead.historial?.length || 0})</div>
                       {selectedLead.historial && selectedLead.historial.length > 0 ? (
                         <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
-                          {selectedLead.historial.map((h, idx) => (
+                          {[...(selectedLead.historial || [])].reverse().map((h, idx) => (
                             <div key={idx} style={{ padding: '10px', background: 'rgba(0,0,0,0.3)', borderRadius: '6px', marginBottom: '8px', fontSize: '12px', borderLeft: `3px solid ${h.tipo === 'WhatsApp' ? '#25D366' : h.tipo === 'Email' ? '#60a5fa' : '#f59e0b'}` }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                                 <span style={{ fontWeight: '600', color: h.tipo === 'WhatsApp' ? '#25D366' : h.tipo === 'Email' ? '#60a5fa' : '#f59e0b' }}>{h.tipo}</span>
@@ -1143,7 +1198,7 @@ const cerrarLead = async (lead) => {
               <input name="deuda" type="number" placeholder="💰 Deuda (€)" defaultValue={selectedCliente.deuda || 0} style={inputStyle} />
               <div style={{ border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '12px', maxHeight: '200px', overflowY: 'auto' }}>
                 <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '8px' }}>📋 Historial</div>
-                {(selectedCliente.historial || []).map((h, idx) => (
+                {[...(selectedLead.historial || [])].reverse().map((h, idx) => (
                   <div key={idx} style={{ background: 'rgba(255,255,255,0.05)', padding: '8px', borderRadius: '6px', marginBottom: '8px', fontSize: '13px' }}>
                     <div style={{ color: '#64748b', fontSize: '11px' }}>{h.fecha}</div>
                     <div style={{ fontWeight: '600' }}>{h.accion}</div>
