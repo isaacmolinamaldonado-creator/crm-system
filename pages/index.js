@@ -113,7 +113,36 @@ const loadAllData = async () => {
     if (!leadsData || leadsData.length === 0) {
       console.log('No hay leads, cargando iniciales');
       for (const lead of initialLeads) {
-        await saveLead(lead);
+await saveLead(lead);
+
+// Añadir a Brevo
+console.log('🔵 Cambiando estado a:', updates.estado, 'Email:', lead.email);
+
+try {
+  const response = await fetch('https://api.brevo.com/v3/contacts', {
+    method: 'POST',
+    headers: {
+      'api-key': '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',
+      'content-type': 'application/json'
+    },
+    body: JSON.stringify({
+      email: lead.email,
+      listIds: [listas[updates.estado]],
+      unlinkListIds: Object.values(listas).filter(id => id !== listas[updates.estado]),
+      updateEnabled: true
+    })
+  });
+  
+  const result = await response.json();
+  
+  if (response.ok) {
+    console.log('✅ Brevo movido:', result);
+  } else {
+    console.error('❌ Brevo error al mover:', result);
+  }
+} catch (error) {
+  console.error('❌ Error moviendo Brevo:', error);
+}
       }
       setLeads(initialLeads);
 } else {
@@ -308,18 +337,53 @@ const pipelineData = [
   { name: 'Por cerrar', value: leadsFiltrados.filter(l => l.estado === 'POR_CERRAR').length, color: '#8b5cf6' },
 ];
 
- const updateLead = async (leadId, updates) => {
+const updateLead = async (leadId, updates) => {
   const updatedLeads = leads.map(l => l.id === leadId ? { ...l, ...updates } : l);
   setLeads(updatedLeads);
   
   const lead = updatedLeads.find(l => l.id === leadId);
   if (lead) {
     await saveLead(lead);
+    
+    // 🔥 NUEVO: Sincronizar con Brevo si cambió estado
+    if (updates.estado) {
+      const listas = {
+        'FRIO': 3,
+        'CALIENTE': 6,
+        'POR_CERRAR': 7,
+        'NO_SHOW': 4,
+        'INACTIVO': 2,
+        'CLIENTE': 9,
+        'DESCARTADO': 3,
+        'TIBIO': 3
+      };
+      
+      if (listas[updates.estado]) {
+        try {
+          await fetch('https://api.brevo.com/v3/contacts', {
+            method: 'POST',
+            headers: {
+              'api-key': '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',
+              'content-type': 'application/json'
+            },
+            body: JSON.stringify({
+              email: lead.email,
+              listIds: [listas[updates.estado]],
+              unlinkListIds: Object.values(listas).filter(id => id !== listas[updates.estado]),
+              updateEnabled: true
+            })
+          });
+        } catch (error) {
+          console.error('Error Brevo:', error);
+        }
+      }
+    }
   }
   
   if (selectedLead?.id === leadId) {
     setSelectedLead({ ...selectedLead, ...updates });
   }
+
 };
 
   const deleteLead = async (leadId) => {
@@ -761,8 +825,7 @@ if (!isAuthenticated) {
                       <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: '600', marginBottom: '10px' }}>📜 Historial ({selectedLead.historial?.length || 0})</div>
                       {selectedLead.historial && selectedLead.historial.length > 0 ? (
                         <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
-                          {[...(selectedLead.historial || [])].reverse().map((h, idx) => (
-                            <div key={idx} style={{ padding: '10px', background: 'rgba(0,0,0,0.3)', borderRadius: '6px', marginBottom: '8px', fontSize: '12px', borderLeft: `3px solid ${h.tipo === 'WhatsApp' ? '#25D366' : h.tipo === 'Email' ? '#60a5fa' : '#f59e0b'}` }}>
+                         {selectedLead?.historial && [...selectedLead.historial].reverse().map((h, idx) => (                           <div key={idx} style={{ padding: '10px', background: 'rgba(0,0,0,0.3)', borderRadius: '6px', marginBottom: '8px', fontSize: '12px', borderLeft: `3px solid ${h.tipo === 'WhatsApp' ? '#25D366' : h.tipo === 'Email' ? '#60a5fa' : '#f59e0b'}` }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                                 <span style={{ fontWeight: '600', color: h.tipo === 'WhatsApp' ? '#25D366' : h.tipo === 'Email' ? '#60a5fa' : '#f59e0b' }}>{h.tipo}</span>
                                 <span style={{ fontSize: '10px', color: '#64748b' }}>{h.fecha}</span>
@@ -1002,7 +1065,7 @@ if (!isAuthenticated) {
             <form onSubmit={async (e) => {
               e.preventDefault();
               const fd = new FormData(e.target);
-              const notaInicial = fd.get('notas') || '';
+const notaInicial = fd.get('notas') || '';
               const newLead = { 
                 id: Date.now(), 
                 nombre: fd.get('nombre'), 
@@ -1023,8 +1086,42 @@ if (!isAuthenticated) {
                 fechaIngreso: hoy,
                 historial: notaInicial ? [{ fecha: ahora, tipo: 'Nota inicial', mensaje: notaInicial, resultado: 'Info' }] : []
               };
+              
               setLeads([...leads, newLead]);
               await saveLead(newLead);
+              
+              // 🔥 AÑADIR A BREVO
+              console.log('🔵 Añadiendo a Brevo:', newLead.email);
+              
+              try {
+                const response = await fetch('https://api.brevo.com/v3/contacts', {
+                  method: 'POST',
+                  headers: {
+                    'api-key': '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',
+                    'content-type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                    email: newLead.email,
+                    attributes: {
+                      FIRSTNAME: newLead.nombre,
+                      SMS: newLead.telefono
+                    },
+                    listIds: [3],
+                    updateEnabled: true
+                  })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                  console.log('✅ Brevo SUCCESS:', result);
+                } else {
+                  console.error('❌ Brevo ERROR:', result);
+                }
+              } catch (error) {
+                console.error('❌ Brevo FETCH ERROR:', error);
+              }
+              
               setShowAddLead(false);
             }} style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <input name="nombre" placeholder="Nombre *" required style={inputStyle} />
@@ -1198,13 +1295,13 @@ if (!isAuthenticated) {
               <input name="deuda" type="number" placeholder="💰 Deuda (€)" defaultValue={selectedCliente.deuda || 0} style={inputStyle} />
               <div style={{ border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '12px', maxHeight: '200px', overflowY: 'auto' }}>
                 <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '8px' }}>📋 Historial</div>
-                {[...(selectedLead.historial || [])].reverse().map((h, idx) => (
-                  <div key={idx} style={{ background: 'rgba(255,255,255,0.05)', padding: '8px', borderRadius: '6px', marginBottom: '8px', fontSize: '13px' }}>
-                    <div style={{ color: '#64748b', fontSize: '11px' }}>{h.fecha}</div>
-                    <div style={{ fontWeight: '600' }}>{h.accion}</div>
-                    <div>{h.notas}</div>
-                  </div>
-                ))}
+{selectedCliente?.historial && [...selectedCliente.historial].reverse().map((h, idx) => (
+  <div key={idx}>
+    <div style={{ color: '#64748b', fontSize: '11px' }}>{h.fecha}</div>
+    <div style={{ fontWeight: '600' }}>{h.accion || 'Nota'}</div>
+    <div>{h.notas || h.mensaje || 'Sin contenido'}</div>
+  </div>
+))}
               </div>
               <textarea name="nuevaNota" placeholder="➕ Agregar nota" rows="2" style={inputStyle}></textarea>
               <button type="submit" style={{ padding: '14px', borderRadius: '8px', border: 'none', background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', cursor: 'pointer', fontWeight: '700', fontSize: '16px' }}>💾 Guardar Cambios</button>
