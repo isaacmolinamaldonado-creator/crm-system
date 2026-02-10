@@ -831,8 +831,7 @@ if (!isAuthenticated) {
                                 <span style={{ fontSize: '10px', color: '#64748b' }}>{h.fecha}</span>
                               </div>
                               <div style={{ color: '#e2e8f0', lineHeight: '1.4', marginBottom: '4px' }}>{h.mensaje}</div>
-                              <div style={{ fontSize: '10px', color: h.resultado.includes('positivo') ? '#10b981' : h.resultado === 'Negativo' ? '#ef4444' : '#64748b' }}>→ {h.resultado}</div>
-                            </div>
+<div style={{ fontSize: '10px', color: h.resultado?.includes('positivo') ? '#10b981' : h.resultado === 'Negativo' ? '#ef4444' : '#64748b' }}>→ {h.resultado || 'Sin resultado'}</div>                            </div>
                           ))}
                         </div>
                       ) : (
